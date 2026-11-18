@@ -1,0 +1,20 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Java
+*.class
+*.jar
+target/
+
+# Configuración local
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
