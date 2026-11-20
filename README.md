@@ -26,7 +26,17 @@ Get-Content -Raw demo/usuarios.sql | docker compose exec -T postgres psql -U ele
 | Rol | RUT | Contraseña de demostración |
 | --- | --- | --- |
 | Supervisor | 11.111.111-1 | `DemoSupervisor26` |
-| Técnico | 12.345.678-5 | `DemoTecnico26` |
+| Técnico | 12.345.678-5 | `12345` |
+| Técnico | 22.222.222-2 | `DemoTecnico22` |
+| Técnico | 33.333.333-3 | `DemoTecnico33` |
+
+Para cargar las tres órdenes ficticias de la hoja de ruta, ejecuta desde el directorio del backend en Ubuntu (WSL):
+
+```bash
+sudo docker compose exec -T postgres psql -U electro -d electromechanics -v ON_ERROR_STOP=1 --single-transaction -f - < demo/ordenes.sql
+```
+
+Las órdenes de ejemplo están asignadas al técnico 12.345.678-5 para que una sola sesión muestre los estados pendiente, en proceso y completada. Si vuelves a ejecutar el archivo, las órdenes que ya existen conservan su estado.
 
 Los servicios quedan disponibles en `127.0.0.1:8081` y `127.0.0.1:8082`. PostgreSQL se publica en `127.0.0.1:5434` para pruebas con Maven. Las cuentas anteriores son datos ficticios para esta demostración.
 
