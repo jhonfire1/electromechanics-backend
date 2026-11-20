@@ -32,6 +32,12 @@ public class AuthController {
         return authService.authenticate(request);
     }
 
+    @PostMapping("/register/cliente")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResponse registrarCliente(@Valid @RequestBody LoginRequest request) {
+        return authService.registrarCliente(request);
+    }
+
     @PostMapping("/register")
     public AuthResponse register(
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String token,

@@ -36,7 +36,23 @@ public class AuthService {
         if (!"TECNICO".equals(role) && !"SUPERVISOR".equals(role)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rol no permitido");
         }
-        if (request.getPassword().getBytes(StandardCharsets.UTF_8).length > 72) {
+        User saved = guardarUsuario(username, request.getPassword(), role);
+        return new AuthResponse(null, saved.getId(), saved.getUsername(), saved.getRole());
+    }
+
+    public AuthResponse registrarCliente(LoginRequest request) {
+        String rut = request.getUsername().strip().replace(".", "").replace("-", "")
+                .toUpperCase(Locale.ROOT);
+        if (!rutValido(rut) || request.getPassword().length() < 8) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "RUT o contraseña inválidos");
+        }
+        User cliente = guardarUsuario(rut, request.getPassword(), "CLIENTE");
+        String token = jwtUtil.generateToken(cliente.getUsername(), cliente.getRole(), cliente.getId());
+        return new AuthResponse(token, cliente.getId(), cliente.getUsername(), cliente.getRole());
+    }
+
+    private User guardarUsuario(String username, String password, String role) {
+        if (password.getBytes(StandardCharsets.UTF_8).length > 72) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Contraseña demasiado larga");
         }
         if (userRepository.findByUsername(username).isPresent()) {
@@ -45,11 +61,21 @@ public class AuthService {
 
         User user = new User();
         user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(passwordEncoder.encode(password));
         user.setRole(role);
 
-        User saved = userRepository.save(user);
-        return new AuthResponse(null, saved.getId(), saved.getUsername(), saved.getRole());
+        return userRepository.save(user);
+    }
+
+    private boolean rutValido(String rut) {
+        if (!rut.matches("[0-9]{7,8}[0-9K]")) return false;
+        int suma = 0;
+        int orden = 0;
+        for (int i = rut.length() - 2; i >= 0; i--) {
+            suma += (rut.charAt(i) - '0') * (2 + orden++ % 6);
+        }
+        int indice = (11 - suma % 11) % 11;
+        return rut.charAt(rut.length() - 1) == "0123456789K".charAt(indice);
     }
 
     public List<TecnicoResponse> listarTecnicos() {

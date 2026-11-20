@@ -23,5 +23,5 @@ public class User {
     private String password; // Almacenada con hash BCrypt
 
     @Column(nullable = false)
-    private String role; // "TECNICO" o "SUPERVISOR"
+    private String role; // "TECNICO", "SUPERVISOR" o "CLIENTE"
 }
